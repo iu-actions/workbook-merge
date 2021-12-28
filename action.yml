@@ -1,0 +1,31 @@
+name: IU Workbook Merge
+description: Merge your IU Workbook cover and content with GitHub Actions.
+
+inputs:
+  # merge details
+  cover:
+    description: GitHub artifact name of workbook cover.
+    required: true
+    default: cover
+  content:
+    description: GitHub artifact name of workbook content.
+    required: true
+    default: content
+    
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download PDF Files from GitHub Artifacts.
+      uses: actions/download-artifact@v2
+    - name: Merge PDF Documents (Cover, Content)
+      run: |
+        sudo apt-get install pdftk -y  # Merge .pdf
+        pdftk ${{ inputs.cover }}/${{ inputs.cover }}.pdf ${{ inputs.content }}/${{ inputs.content }}.pdf cat output merge.pdf
+      shell: bash
+    - name: Upload PDF to GitHub Artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: merge
+        path: merge.pdf
